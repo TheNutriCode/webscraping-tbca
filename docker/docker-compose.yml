@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: tbca_postgres
+    environment:
+      POSTGRES_DB: tbca_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - tbca_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tbca_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  webscraper:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: tbca_webscraper
+    environment:
+      DB_HOST: postgres
+      DB_NAME: tbca_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_PORT: 5432
+    volumes:
+      - ../data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tbca_network
+    restart: "no"
+
+volumes:
+  postgres_data:
+
+networks:
+  tbca_network:
+    driver: bridge
