@@ -1,153 +1,153 @@
-# Tabela Brasileira de Composição de Alimentos - Web Scraping
+# Brazilian Food Composition Table - Web Scraping
 
-Este projeto realiza web scraping da Tabela Brasileira de Composição de Alimentos (TBCA) e armazena os dados nutricionais de mais de 5.500 alimentos em um banco PostgreSQL e arquivo JSON, facilitando o uso por aplicações e sistemas.
+This project performs web scraping of the Brazilian Food Composition Table (TBCA) and stores the nutritional data of more than 5,500 foods in a PostgreSQL database and a JSON file, making it easy to use by applications and systems.
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
-├── src/                    # Código fonte Python
-│   ├── webscrapping.py     # Script principal de webscraping e processamento
-│   ├── dbconnect.py        # Configuração de conexão com PostgreSQL
-│   ├── requirements.txt   # Dependências Python
-│   └── modelagem.png      # Diagrama da modelagem do banco
-├── docker/                # Configurações Docker
-│   ├── docker-compose.yml # Orquestração dos containers
-│   ├── Dockerfile         # Imagem do webscraper
+├── src/                    # Python source code
+│   ├── webscraping.py      # Main webscraping and processing script
+│   ├── dbconnect.py        # PostgreSQL connection configuration
+│   ├── requirements.txt    # Python dependencies
+│   └── modeling.png       # Database modeling diagram
+├── docker/                 # Docker configurations
+│   ├── docker-compose.yml  # Container orchestration
+│   ├── Dockerfile          # Webscraper image
 │   └── scripts/
-│       └── create_database.sql  # Script de criação do banco
-├── data/                  # Arquivos de dados gerados (criado automaticamente)
-└── .env.example          # Exemplo de variáveis de ambiente
+│       └── create_database.sql  # Database creation script
+├── data/                   # Generated data files (created automatically)
+└── .env.example            # Example of environment variables
 ```
 
-## Funcionalidades
+## Features
 
-- 🕷️ **Web Scraping** do site oficial da TBCA
-- 💾 **Armazenamento duplo**: PostgreSQL + arquivo JSON
-- 🐳 **Containerização** com Docker e Docker Compose
-- 📊 **Banco relacional** com 3 tabelas normalizadas
-- 🔄 **Processamento incremental** com controle de duplicatas
-- 📈 **Monitoramento** de progresso durante a coleta
+- 🕷️ **Web Scraping** of the official TBCA website
+- 💾 **Dual storage**: PostgreSQL + JSON file
+- 🐳 **Containerization** with Docker and Docker Compose
+- 📊 **Relational database** with 3 normalized tables
+- 🔄 **Incremental processing** with duplicate control
+- 📈 **Progress monitoring** during collection
 
-## Modelagem do Banco de Dados
+## Database Modeling
 
-O projeto utiliza uma estrutura relacional com 3 tabelas:
+The project uses a relational structure with 3 tables:
 
-- **`alimentos`**: Informações básicas (código, classe, nome principal)
-- **`variacoes_alimentos`**: Variações e descrições detalhadas
-- **`nutrientes_alimentos`**: Valores nutricionais por variação
+- **`foods`**: Basic information (code, class, main name)
+- **`food_variations`**: Variations and detailed descriptions
+- **`food_nutrients`**: Nutritional values per variation
 
-Ver `src/modelagem.png` para o diagrama completo do banco.
+See `src/modeling.png` for the complete database diagram.
 
-## Configuração e Execução
+## Configuration and Execution
 
-### Opção 1: Docker (Recomendado) 🐳
+### Option 1: Docker (Recommended) 🐳
 
-**Pré-requisitos**: Docker e Docker Compose
+**Prerequisites**: Docker and Docker Compose
 
 ```powershell
-# Clonar o repositório
-git clone <seu-repo>
+# Clone the repository
+git clone <your-repo>
 cd webscraping-tbca
 
-# Executar webscraping completo
+# Run full webscraping
 cd docker
 docker-compose up --build
 ```
 
-**Serviços disponíveis:**
+**Available services:**
 
 - **PostgreSQL**: `localhost:5432` (tbca_db/postgres/postgres)
-- **WebScraper**: Executa automaticamente o scraping
+- **WebScraper**: Automatically runs the scraping
 
-### Opção 2: Execução Local
+### Option 2: Local Execution
 
-**Pré-requisitos**: Python 3.8+, PostgreSQL instalado
+**Prerequisites**: Python 3.8+, PostgreSQL installed
 
-#### 1. Configurar PostgreSQL
+#### 1. Configure PostgreSQL
 
 ```sql
--- Conectar como superusuário postgres
+-- Connect as postgres superuser
 CREATE DATABASE tbca_db;
 ```
 
-#### 2. Configurar ambiente Python
+#### 2. Configure Python environment
 
 ```powershell
-# Criar ambiente virtual
+# Create virtual environment
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 
-# Instalar dependências
+# Install dependencies
 pip install -r src\requirements.txt
 ```
 
-#### 3. Configurar variáveis de ambiente
+#### 3. Configure environment variables
 
-Copie `.env.example` para `.env` e configure:
+Copy `.env.example` to `.env` and configure:
 
 ```env
 DB_HOST=localhost
 DB_NAME=tbca_db
 DB_USER=postgres
-DB_PASSWORD=sua_senha
+DB_PASSWORD=your_password
 DB_PORT=5432
 ```
 
-#### 4. Executar o webscraping
+#### 4. Run webscraping
 
 ```powershell
 cd src
-python webscrapping.py
+python webscraping.py
 ```
 
-## Como Usar
+## How to Use
 
-### Scraping Completo (padrão)
+### Full Scraping (default)
 
 ```python
-# Salva em PostgreSQL + arquivo JSON
-fazer_webscraping(salvar_arquivo=True, salvar_banco=True)
+# Saves to PostgreSQL + JSON file
+run_webscraping(save_to_file=True, save_to_db=True)
 
-# Apenas PostgreSQL
-fazer_webscraping(salvar_arquivo=False, salvar_banco=True)
+# Only PostgreSQL
+run_webscraping(save_to_file=False, save_to_db=True)
 
-# Apenas arquivo JSON
-fazer_webscraping(salvar_arquivo=True, salvar_banco=False)
+# Only JSON file
+run_webscraping(save_to_file=True, save_to_db=False)
 ```
 
-### Processar Arquivo Existente
+### Process Existing File
 
 ```python
-# Processa arquivo data/alimentos.txt para o banco
-processar_arquivo_existente()
+# Processes data/foods.txt file to the database
+process_existing_file()
 ```
 
-## Estrutura dos Dados
+## Data Structure
 
-### Arquivo JSON (data/alimentos.txt)
+### JSON File (data/foods.txt)
 
 ```json
 {
-  "codigo": "C0001",
-  "classe": "Cereais",
-  "descricao": "Arroz, integral, cozido",
-  "nutrientes": [
+  "code": "C0001",
+  "class": "Cereals",
+  "description": "Rice, brown, cooked",
+  "nutrients": [
     {
-      "Componente": "Energia",
-      "Unidades": "kcal",
-      "Valor por 100g": "123"
+      "Component": "Energy",
+      "Units": "kcal",
+      "Value per 100g": "123"
     }
   ]
 }
 ```
 
-### Banco PostgreSQL
+### PostgreSQL Database
 
-- **alimentos**: `id`, `codigo`, `classe`, `principal`, `created_at`
-- **variacoes_alimentos**: `id`, `alimento_id`, `descricao`, `created_at`
-- **nutrientes_alimentos**: `id`, `variacao_id`, `componente`, `unidade_medida`, `valor_por_100g`, `created_at`
+- **foods**: `id`, `code`, `class`, `main`, `created_at`
+- **food_variations**: `id`, `food_id`, `description`, `created_at`
+- **food_nutrients**: `id`, `variation_id`, `component`, `unit_of_measurement`, `value_per_100g`, `created_at`
 
-## Tecnologias
+## Technologies
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue)](https://www.python.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
@@ -156,20 +156,20 @@ processar_arquivo_existente()
 [![Requests](https://img.shields.io/badge/Requests-2.31.0-brightgreen)](https://pypi.org/project/requests/)
 [![Psycopg2](https://img.shields.io/badge/Psycopg2-2.9.7-brightgreen)](https://pypi.org/project/psycopg2/)
 
-## Contribuição
+## Contribution
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
 
-## Licença
+## License
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+This project is under the MIT license. See the [LICENSE](LICENSE) file for more details.
 
-## Uso dos Dados
+## Data Usage
 
-O arquivo `data/alimentos.txt` contém os dados nutricionais em formato JSON. Os dados podem ser facilmente importados e utilizados em aplicações de nutrição, sistemas de recomendação alimentar, ou pesquisas acadêmicas.
+The `data/foods.txt` file contains nutritional data in JSON format. The data can be easily imported and used in nutrition applications, food recommendation systems, or academic research.
 
-**Fonte**: [Tabela Brasileira de Composição de Alimentos (TBCA)](http://www.tbca.net.br/)
+**Source**: [Brazilian Food Composition Table (TBCA)](http://www.tbca.net.br/)
